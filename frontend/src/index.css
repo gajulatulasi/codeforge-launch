@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-brand-dark text-white font-sans antialiased min-h-screen;
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(53, 88, 142, 0.15), transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.15), transparent 25%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-brand-dark/40 backdrop-blur-md border border-white/10 shadow-xl;
+  }
+  .glass-hover {
+    @apply hover:bg-brand-dark/60 hover:border-white/20 transition-all duration-300;
+  }
+}
+
+@keyframes slow-jump {
+  0%, 100% { transform: translateY(0px) scale(1); }
+  50% { transform: translateY(-30px) scale(1.05); }
+}
+
+.animate-slow-jump {
+  animation: slow-jump 5s ease-in-out infinite;
+}
+.animate-slow-jump-delayed {
+  animation: slow-jump 6s ease-in-out 2s infinite;
+}
+.animate-slow-jump-fast {
+  animation: slow-jump 4s ease-in-out 1s infinite;
+}
+
+/* Custom Scrollbar for editor and pages */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(53, 88, 142, 0.8);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.8);
+}
