@@ -1,8 +1,15 @@
-const { Sequelize } = require('sequelize');
+const { Sequelize, DataTypes } = require('sequelize');
 const dotenv = require('dotenv');
 const mysql = require('mysql2/promise');
 
 dotenv.config();
+
+// Compatibility for MySQL engines without native JSON support (< 5.7.8)
+if (DataTypes && DataTypes.mysql && DataTypes.mysql.JSON) {
+  DataTypes.mysql.JSON.prototype.toSql = function() {
+    return 'TEXT';
+  };
+}
 
 const dbHost = process.env.DB_HOST || 'localhost';
 const dbPort = parseInt(process.env.DB_PORT || '3306', 10);
@@ -27,6 +34,28 @@ const sequelize = new Sequelize(
     }
   }
 );
+
+sequelize.addHook('afterFind', (records) => {
+  if (!records) return;
+  const parseJsonAttributes = (item) => {
+    if (!item || !item.dataValues) return;
+    for (const [key, attr] of Object.entries(item.constructor.rawAttributes || {})) {
+      if (attr.type && attr.type.key === 'JSON') {
+        const val = item.dataValues[key];
+        if (typeof val === 'string') {
+          try {
+            item.dataValues[key] = JSON.parse(val);
+          } catch (e) {}
+        }
+      }
+    }
+  };
+  if (Array.isArray(records)) {
+    records.forEach(parseJsonAttributes);
+  } else {
+    parseJsonAttributes(records);
+  }
+});
 
 const connectDB = async () => {
   // Step 1: Attempt to create database if it doesn't already exist
