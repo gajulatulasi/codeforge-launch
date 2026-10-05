@@ -16,6 +16,7 @@ const dbPort = parseInt(process.env.DB_PORT || '3306', 10);
 const dbUser = process.env.DB_USER || 'root';
 const dbPassword = process.env.DB_PASSWORD !== undefined ? process.env.DB_PASSWORD : (process.env.DB_PASS !== undefined ? process.env.DB_PASS : '');
 const dbName = process.env.DB_NAME || 'codeforge';
+const sslConfig = process.env.DB_SSL === 'true' ? { minVersion: 'TLSv1.2', rejectUnauthorized: true } : undefined;
 
 const sequelize = new Sequelize(
   dbName,
@@ -26,6 +27,7 @@ const sequelize = new Sequelize(
     port: dbPort,
     dialect: 'mysql',
     logging: false,
+    dialectOptions: sslConfig ? { ssl: sslConfig } : {},
     pool: {
       max: 150,
       min: 0,
@@ -64,7 +66,8 @@ const connectDB = async () => {
       host: dbHost,
       port: dbPort,
       user: dbUser,
-      password: dbPassword
+      password: dbPassword,
+      ssl: sslConfig
     });
     await conn.query(`CREATE DATABASE IF NOT EXISTS \`${dbName}\`;`);
     await conn.end();
